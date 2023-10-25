@@ -81,41 +81,41 @@
 
             videoElement.srcObject = stream;
 
-            // 每秒繪製一格畫面
-            setInterval(function () {
-              let canvas = document.createElement("canvas");
-              canvas.width = videoElement.videoWidth;
-              canvas.height = videoElement.videoHeight;
-              canvas
-                .getContext("2d")
-                .drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            // // 每秒繪製一格畫面
+            // setInterval(function () {
+            //   let canvas = document.createElement("canvas");
+            //   canvas.width = videoElement.videoWidth;
+            //   canvas.height = videoElement.videoHeight;
+            //   canvas
+            //     .getContext("2d")
+            //     .drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-              // 改變圖片解析度
-              let scaleFactor = 2; // 調整這個數值以增加解析度
+            //   // 改變圖片解析度
+            //   let scaleFactor = 2; // 調整這個數值以增加解析度
 
-              let offscreenCanvas = document.createElement("canvas");
-              offscreenCanvas.width = canvas.width * scaleFactor;
-              offscreenCanvas.height = canvas.height * scaleFactor;
-              let offscreenCtx = offscreenCanvas.getContext("2d");
-              offscreenCtx.drawImage(
-                canvas,
-                0,
-                0,
-                offscreenCanvas.width,
-                offscreenCanvas.height
-              );
+            //   let offscreenCanvas = document.createElement("canvas");
+            //   offscreenCanvas.width = canvas.width * scaleFactor;
+            //   offscreenCanvas.height = canvas.height * scaleFactor;
+            //   let offscreenCtx = offscreenCanvas.getContext("2d");
+            //   offscreenCtx.drawImage(
+            //     canvas,
+            //     0,
+            //     0,
+            //     offscreenCanvas.width,
+            //     offscreenCanvas.height
+            //   );
 
-              // 直接顯示在前端
-              // 需要動態創建 <img> 元素，因為手機版可能會無法讀取
-              let imageElement = document.createElement("img");
+            //   // 直接顯示在前端
+            //   // 需要動態創建 <img> 元素，因為手機版可能會無法讀取
+            //   let imageElement = document.createElement("img");
 
-              // 將 <img> 元素添加到 HTML 中的指定元素上
-              let containerElement = document.getElementById("imageContainer");
-              containerElement.innerHTML = "";
-              imageElement.setAttribute("style", "width:100%");
-              containerElement.appendChild(imageElement);
-              imageElement.src = offscreenCanvas.toDataURL("image/jpeg", 1);
-            }, 1000); // 每秒繪製一次畫面
+            //   // 將 <img> 元素添加到 HTML 中的指定元素上
+            //   let containerElement = document.getElementById("imageContainer");
+            //   containerElement.innerHTML = "";
+            //   imageElement.setAttribute("style", "width:100%");
+            //   containerElement.appendChild(imageElement);
+            //   imageElement.src = offscreenCanvas.toDataURL("image/jpeg", 1);
+            // }, 1000); // 每秒繪製一次畫面
           })
           .catch(function (error) {
             console.log("無法取得視訊串流：", error);
