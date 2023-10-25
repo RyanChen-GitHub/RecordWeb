@@ -67,7 +67,7 @@
 
     function startCam() {
       // 手機前後鏡頭切換 前鏡頭為 'user'，後鏡頭為 'environment'
-      const constraints = { video: { facingMode: "user" } };
+      const constraints = { video: { facingMode: "environment" } };
       // 確保瀏覽器支援MediaDevices API
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         // 取得視訊串流
