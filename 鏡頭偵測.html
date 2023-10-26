@@ -12,8 +12,6 @@
       position: absolute;
       border: 2px solid red;
       box-sizing: border-box;
-      width: 100px;
-      height: 100px;
       z-index: 2;
     }
 
@@ -49,12 +47,9 @@
   <div id="LB-Msg" class="PointMsg">3</div>
   <div id="RB-Msg" class="PointMsg">4</div>
 
-  <video id="videoElement" autoplay muted playsinline></video>
+  <video id="videoElement" style="width: 100%;" autoplay muted playsinline></video>
 
   <canvas id="canvas" style="display: none;"></canvas>
-
-  <!-- 取得特定點的顏色資訊按鈕 -->
-  <button onclick="captureColor()">取得特定點的顏色資訊</button>
 
   <script>
     const videoElement = document.getElementById("videoElement");
@@ -87,49 +82,49 @@
     }
 
     videoElement.addEventListener('play', function () {
-      // 設定畫布大小與影像大小一樣
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      // 設定偵測框
       const BoxL = 50;
       const BoxT = 50;
-      Box.style.width = (videoElement.videoWidth - (BoxL * 2)) + 'px';
-      Box.style.height = (videoElement.videoHeight - (BoxT * 2)) + 'px';
-      Box.style.left = BoxL + 'px';
-      Box.style.top = BoxT + 'px';
-      // 設定四個點位置
       const PointL = 50;
       const PointT = 50;
-      const Point_Left = (BoxL + PointL);
-      const Point_Top = (BoxT + PointT);
-      const Point_Right = (BoxL + (videoElement.videoWidth - (BoxL * 2)) - (PointL * 2));
-      const Point_Bottom = (BoxT + (videoElement.videoHeight - (BoxT * 2)) - (PointT * 2));
-      LT.style.left = Point_Left + 'px';
-      LT.style.top = Point_Top + 'px';
-      RT.style.left = Point_Right + 'px';
-      RT.style.top = Point_Top + 'px';
-      LB.style.left = Point_Left + 'px';
-      LB.style.top = Point_Bottom + 'px';
-      RB.style.left = Point_Right + 'px';
-      RB.style.top = Point_Bottom + 'px';
-      // 四個點顏色位置
-      LTMsg.style.left = (Point_Left - 20) + 'px';
-      LTMsg.style.top = (Point_Top - 21) + 'px';
-      RTMsg.style.left = (Point_Right - 20) + 'px';
-      RTMsg.style.top = (Point_Top - 21) + 'px';
-      LBMsg.style.left = (Point_Left - 20) + 'px';
-      LBMsg.style.top = (Point_Bottom - 21) + 'px';
-      RBMsg.style.left = (Point_Right - 20) + 'px';
-      RBMsg.style.top = (Point_Bottom - 21) + 'px';
-
-      const interval = 1000 / 30; // 每秒幾幀更新
+      const interval = 1000 / 100; // 每秒幾幀更新
       setInterval(function () {
+        // 設定畫布大小與影像大小一樣
+        canvas.width = videoElement.offsetWidth;
+        canvas.height = videoElement.offsetHeight;
+        // 設定偵測框
+        Box.style.width = (videoElement.offsetWidth - (BoxL * 2)) + 'px';
+        Box.style.height = (videoElement.offsetHeight - (BoxT * 2)) + 'px';
+        Box.style.left = BoxL + 'px';
+        Box.style.top = BoxT + 'px';
+        // 設定四個點位置
+        let Point_Left = (BoxL + PointL);
+        let Point_Top = (BoxT + PointT);
+        let Point_Right = (BoxL + (videoElement.offsetWidth - (BoxL * 2)) - (PointL * 2));
+        let Point_Bottom = (BoxT + (videoElement.offsetHeight - (BoxT * 2)) - (PointT * 2));
+        LT.style.left = Point_Left + 'px';
+        LT.style.top = Point_Top + 'px';
+        RT.style.left = Point_Right + 'px';
+        RT.style.top = Point_Top + 'px';
+        LB.style.left = Point_Left + 'px';
+        LB.style.top = Point_Bottom + 'px';
+        RB.style.left = Point_Right + 'px';
+        RB.style.top = Point_Bottom + 'px';
+        // 四個點顏色位置
+        LTMsg.style.left = (Point_Left - 20) + 'px';
+        LTMsg.style.top = (Point_Top - 21) + 'px';
+        RTMsg.style.left = (Point_Right - 20) + 'px';
+        RTMsg.style.top = (Point_Top - 21) + 'px';
+        LBMsg.style.left = (Point_Left - 20) + 'px';
+        LBMsg.style.top = (Point_Bottom - 21) + 'px';
+        RBMsg.style.left = (Point_Right - 20) + 'px';
+        RBMsg.style.top = (Point_Bottom - 21) + 'px';
+
         let pixelData;
         let red;
         let green;
         let blue;
         if (!videoElement.paused && !videoElement.ended) {
-          context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+          context.drawImage(videoElement, 0, 0, videoElement.offsetWidth, videoElement.offsetHeight);
           // 取得左上的顏色信息
           pixelData = context.getImageData(Point_Left + 5, Point_Top + 5, 1, 1).data;
           red = pixelData[0];
@@ -157,19 +152,6 @@
         }
       }, interval);
     });
-
-    function captureColor() {
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-      // 取得特定點的顏色資訊，例如(100, 100)
-      const pixelData = context.getImageData(100, 100, 1, 1).data;
-      const red = pixelData[0];
-      const green = pixelData[1];
-      const blue = pixelData[2];
-      console.log(`顏色資訊 - R: ${red}, G: ${green}, B: ${blue}`);
-    }
-
     // 初始化
     startCam();
   </script>
