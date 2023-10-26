@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache" />
+  <title>Document</title>
+  <style>
+    /* 偵測框 */
+    .Box {
+      position: absolute;
+      border: 2px solid red;
+      box-sizing: border-box;
+      width: 100px;
+      height: 100px;
+      z-index: 2;
+    }
+
+    /* 四個點 */
+    .Point {
+      position: absolute;
+      border: 2px solid blue;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+    }
+
+    /* 四個點 */
+    .PointMsg {
+      position: absolute;
+      color: black;
+      font-size: 14px;
+      text-shadow: 0px 0px 1px white;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 在視訊上叠加框與四個點 -->
+  <div id="Detection-Box" class="Box"></div>
+  <div id="Left-Top" class="Point"></div>
+  <div id="Right-Top" class="Point"></div>
+  <div id="Left-Bottom" class="Point"></div>
+  <div id="Right-Bottom" class="Point"></div>
+  <!-- 四個點顏色資訊 -->
+  <div id="LT-Msg" class="PointMsg">1</div>
+  <div id="RT-Msg" class="PointMsg">2</div>
+  <div id="LB-Msg" class="PointMsg">3</div>
+  <div id="RB-Msg" class="PointMsg">4</div>
+
+  <video id="videoElement" autoplay muted playsinline></video>
+
+  <canvas id="canvas" style="display: none;"></canvas>
+
+  <!-- 取得特定點的顏色資訊按鈕 -->
+  <button onclick="captureColor()">取得特定點的顏色資訊</button>
+
+  <script>
+    const videoElement = document.getElementById("videoElement");
+    const Box = document.getElementById('Detection-Box');
+    const LT = document.getElementById('Left-Top');
+    const RT = document.getElementById('Right-Top');
+    const LB = document.getElementById('Left-Bottom');
+    const RB = document.getElementById('Right-Bottom');
+    const LTMsg = document.getElementById('LT-Msg');
+    const RTMsg = document.getElementById('RT-Msg');
+    const LBMsg = document.getElementById('LB-Msg');
+    const RBMsg = document.getElementById('RB-Msg');
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext('2d');
+
+    function startCam() {
+      const constraints = { video: { facingMode: "environment" } };
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then(function (stream) {
+            videoElement.srcObject = stream;
+          })
+          .catch(function (error) {
+            alert("無法取得視訊串流：", error);
+          });
+      } else {
+        alert("您使用的瀏覽器不支援視訊串流，請使用其他瀏覽器，再重新開啟頁面！");
+      }
+    }
+
+    videoElement.addEventListener('play', function () {
+      // 設定畫布大小與影像大小一樣
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      // 設定偵測框
+      const BoxL = 50;
+      const BoxT = 50;
+      Box.style.width = (videoElement.videoWidth - (BoxL * 2)) + 'px';
+      Box.style.height = (videoElement.videoHeight - (BoxT * 2)) + 'px';
+      Box.style.left = BoxL + 'px';
+      Box.style.top = BoxT + 'px';
+      // 設定四個點位置
+      const PointL = 50;
+      const PointT = 50;
+      const Point_Left = (BoxL + PointL);
+      const Point_Top = (BoxT + PointT);
+      const Point_Right = (BoxL + (videoElement.videoWidth - (BoxL * 2)) - (PointL * 2));
+      const Point_Bottom = (BoxT + (videoElement.videoHeight - (BoxT * 2)) - (PointT * 2));
+      LT.style.left = Point_Left + 'px';
+      LT.style.top = Point_Top + 'px';
+      RT.style.left = Point_Right + 'px';
+      RT.style.top = Point_Top + 'px';
+      LB.style.left = Point_Left + 'px';
+      LB.style.top = Point_Bottom + 'px';
+      RB.style.left = Point_Right + 'px';
+      RB.style.top = Point_Bottom + 'px';
+      // 四個點顏色位置
+      LTMsg.style.left = (Point_Left - 20) + 'px';
+      LTMsg.style.top = (Point_Top - 21) + 'px';
+      RTMsg.style.left = (Point_Right - 20) + 'px';
+      RTMsg.style.top = (Point_Top - 21) + 'px';
+      LBMsg.style.left = (Point_Left - 20) + 'px';
+      LBMsg.style.top = (Point_Bottom - 21) + 'px';
+      RBMsg.style.left = (Point_Right - 20) + 'px';
+      RBMsg.style.top = (Point_Bottom - 21) + 'px';
+
+      const interval = 1000 / 30; // 每秒幾幀更新
+      setInterval(function () {
+        let pixelData;
+        let red;
+        let green;
+        let blue;
+        if (!videoElement.paused && !videoElement.ended) {
+          context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
+          // 取得左上的顏色信息
+          pixelData = context.getImageData(Point_Left + 5, Point_Top + 5, 1, 1).data;
+          red = pixelData[0];
+          green = pixelData[1];
+          blue = pixelData[2];
+          LTMsg.textContent = `(${red},${green},${blue})`;
+          // 取得右上的顏色信息
+          pixelData = context.getImageData(Point_Right + 5, Point_Top + 5, 1, 1).data;
+          red = pixelData[0];
+          green = pixelData[1];
+          blue = pixelData[2];
+          RTMsg.textContent = `(${red},${green},${blue})`;
+          // 取得左下的顏色信息
+          pixelData = context.getImageData(Point_Left + 5, Point_Bottom + 5, 1, 1).data;
+          red = pixelData[0];
+          green = pixelData[1];
+          blue = pixelData[2];
+          LBMsg.textContent = `(${red},${green},${blue})`;
+          // 取得右下的顏色信息
+          pixelData = context.getImageData(Point_Right + 5, Point_Bottom + 5, 1, 1).data;
+          red = pixelData[0];
+          green = pixelData[1];
+          blue = pixelData[2];
+          RBMsg.textContent = `(${red},${green},${blue})`;
+        }
+      }, interval);
+    });
+
+    function captureColor() {
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      // 取得特定點的顏色資訊，例如(100, 100)
+      const pixelData = context.getImageData(100, 100, 1, 1).data;
+      const red = pixelData[0];
+      const green = pixelData[1];
+      const blue = pixelData[2];
+      console.log(`顏色資訊 - R: ${red}, G: ${green}, B: ${blue}`);
+    }
+
+    // 初始化
+    startCam();
+  </script>
+</body>
+
+</html>
